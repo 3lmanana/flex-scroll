@@ -1,3 +1,5 @@
+var itemsForScroll = 15;
+
 /*
     Items
 ------------------------------------ */
@@ -32,7 +34,7 @@ var items = {
     // Reorder (by using data-source)
 };
 
-items.create(dt, 15, ".scroller");
+items.create(dt, itemsForScroll, ".scroller");
 
 /*
     Limits
@@ -60,7 +62,7 @@ var limits = {
     },
 
     getUILimits: function getUILimits(target, saveObj, initialBoolean = false) {
-        var scroller = document.querySelector(saveObj);
+        var scroller = document.querySelector(target);
 
         var props = {
             height:     0,
@@ -75,9 +77,69 @@ var limits = {
 
         props.height    = scroller.offsetHeight;
         props.position  = scroller.getBounding;
+
+        console.log(props.height);
     }
 };
 
 limits.getDataLimits(".scroller-item", limits.data);
 limits.getUILimits(".scroller", limits.ui, true);
-//console.log(limits.data);
+
+/*
+    Scroll
+------------------------------------ */
+var scroll = {
+    direction:  "down", // or "up"
+    position:   0,
+    
+    item: {
+        id:         null,
+        position:   0
+    },
+
+    calculateScrolling: function calculateScrolling(scrollingPosition, element) {
+        // Find which item is closest to center and remember its position and data
+        var items   = element.querySelectorAll(".scroller-item"),
+            center  = element.getBoundingClientRect().top + (element.offsetHeight / 2);
+
+        var centerItem = { id: null, delta: center };
+
+        for (let i = 0; i < items.length; i++) {
+            let item        = items[i],
+                itemCenter  = item.getBoundingClientRect().top + (item.offsetHeight / 2),
+                delta       = Math.abs(center - itemCenter);
+
+            if (delta < centerItem.delta) {
+                centerItem.delta    = delta;
+                centerItem.id       = item.getAttribute("data-id");
+            }
+        }
+
+        console.log(centerItem.id);
+    }
+};
+
+function scrolling(e) {
+
+    var scrollPos       = this.scrollTop,
+        contentHeight   = this.querySelector(".scroller").offsetHeight,
+        limit           = contentHeight * 0.25;
+
+    // See which direction scrolling goes
+    if (scrollPos > scroll.position) {
+        scroll.direction = "down";
+    } else {
+        scroll.direction = "up";
+    }
+
+    // Make conditions for varions directions
+    if (scroll.direction === "down" && scrollPos > limit) {
+        scroll.calculateScrolling(scrollPos, this);
+    } else if (scroll.direction === "up" && scrollPos < limit) {
+        scroll.calculateScrolling(scrollPos, this);
+    }
+
+    scroll.position = scrollPos;
+}
+
+document.querySelector(".scroller-wrapper").addEventListener("scroll", scrolling);

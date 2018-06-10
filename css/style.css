@@ -14,6 +14,7 @@ body {
 }
 
 .scroller-wrapper {
+    position: relative;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -25,6 +26,7 @@ body {
 }
 
 .scroller {
+    position: relative;
     min-height: 0;
     width: 100%;
     display: flex;
